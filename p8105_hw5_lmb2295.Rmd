@@ -42,5 +42,16 @@ control_exp_df =
   select(-delete) %>% 
   mutate(arm = recode(arm, 'con' = "control")) %>% 
   mutate(arm = recode(arm, 'exp' = "experimental"))
+  
+
+control_exp_df %>% 
+  pivot_longer(
+    week_1:week_8,
+    names_to = "week",
+    names_prefix = "week_",
+    values_to = "value"
+    ) %>% 
+  ggplot(aes(x = week, y = value, group = id, color = "arm")) + 
+  geom_line()
 ```
 
