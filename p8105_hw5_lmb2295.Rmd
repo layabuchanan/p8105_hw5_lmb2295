@@ -51,7 +51,13 @@ control_exp_df %>%
     names_prefix = "week_",
     values_to = "value"
     ) %>% 
-  ggplot(aes(x = week, y = value, group = id, color = "arm")) + 
-  geom_line()
+  unite(group, arm:id, sep = '', remove = FALSE) %>% 
+  ggplot(aes(x = week, y = value, group = group, color = arm)) + 
+  geom_line() + 
+  labs(
+    title = "Measurement for Control vs Experimental Arm Over Time",
+    x = "Week",
+    y = "Value") +
+   theme(legend.position = "right")
 ```
 
