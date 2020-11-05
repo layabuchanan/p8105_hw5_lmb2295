@@ -1,0 +1,42 @@
+---
+title: "Homework 5"
+author: "Laya Buchanan"
+
+date: 2020-11-05
+output: github_document
+---
+
+This is my submission for the fifth homework assignment for P8105.  
+
+```{r message = FALSE, echo = FALSE}
+library(tidyverse)
+library(knitr)
+library(patchwork)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+# Problem 2: Longitudinal study data
+
+```{r}
+
+
+tibble(
+  file_name = list.files(path = "./data")
+)
+```
+
