@@ -99,12 +99,6 @@ for (i in 1:100) {
 bind_rows(output)
 ```
 
-```{r}
-sim_results =
-rerun(100, sim_t_test(mu = 0)) %>% 
-  bind_rows()
-```
-
 
 ```{r}
 mu_list = 
