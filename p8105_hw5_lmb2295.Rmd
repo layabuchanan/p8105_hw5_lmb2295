@@ -70,6 +70,7 @@ While measurements for the variable of interests were comparable at baseline for
 
 # Problem 3: Power
 
+First, I create a simulated sample with a normal distribution and create a function with a fixed sample size and error variance.
 ```{r}
 sim_t_test = function(n = 30, mu, sigma = 5) {
   
@@ -87,20 +88,10 @@ sim_t_test = function(n = 30, mu, sigma = 5) {
 }
 ```
 
-```{r}
+Next, I run 5000 datasets from the model for each μ of 0, 1, 2, 3, 4, 5, 6 and save the estimate of the effect estimate and the p-value in a dataframe
+
+```{r results = "hide"}
 output = vector("list", length = 5000)
-
-for (i in 1:5000) {
-  
-  output[[i]] = sim_t_test(mu = 0)
-  
-}
-
-bind_rows(output)
-```
-
-
-```{r}
 mu_list = 
   list(
     "mu = 0" = 0,
@@ -132,6 +123,7 @@ estimate_df = map(output_lists, bind_rows
   select(mu, estimate, p.value)
 ```
 
+Next, I create a plot showing the proportion of times the null was rejected on the y axis and the true value of μ on the x axis.
 ```{r}
 sim_results %>% 
   mutate(
@@ -144,14 +136,14 @@ sim_results %>%
     prop_reject = n/5000
   ) %>% 
   ggplot(aes(x = mu, y = prop_reject)) +
-  geom_line() + geom_point() +
+  geom_line() +
   labs(
     title = "Power",
     x = "True Mean",
     y = "% of Times Null Rejected") +
     scale_y_continuous(
-    breaks = c(0.25, 0.50, .75, 1.00), 
-    labels = c(25, 50, 75, 100)) +
+    breaks = c(0.25, 0.5000, .75, 1.00), 
+    labels = c(25, 5000, 75, 100)) +
   scale_x_continuous(
     breaks = c(0, 1, 2, 3, 4, 5, 6))
   
@@ -159,3 +151,41 @@ sim_results %>%
   
 ```
 
+The power of the test increases as effect size increases, with power reaching 100% or nearly 100% with an effect size of about 4.
+
+Next, I create a  a plot showing the average estimate of μ on the y axis and the true value of μ on the x axis, overlaying it with a plot of the average estimate of μ only in samples for which the null was rejected on the y axis and the true value of μ on the x axis.
+```{r}
+results_all = 
+  sim_results %>% 
+  group_by(mu) %>% 
+  mutate(
+    average = mean(estimate)
+  )
+  
+results_true = 
+  sim_results %>% 
+    mutate(
+    reject_null = p.value < 0.05) %>% 
+  filter(reject_null == TRUE) %>% 
+  group_by(mu) %>% 
+  mutate(
+    average = mean(estimate)
+  )
+
+  colors = c("All Values" = "blue", "Rejected Null" = "red")
+  ggplot(results_all, aes(x = mu, y = average)) +
+  geom_line(aes(color = "All Values")) +
+  geom_line(data = results_true, aes(x = mu, y = average, color = "Rejected Null")) + 
+  labs(
+    title = "True vs Estimated Mean",
+    x = "True Mean",
+    y = "Estimated Mean",
+    color = "Legend") +
+  scale_x_continuous(
+    breaks = c(0, 1, 2, 3, 4, 5, 6)) +
+  scale_y_continuous(
+    breaks = c(0, 1, 2, 3, 4, 5, 6)) +
+    scale_color_manual(values = colors)
+```
+
+The sample average of the estimated μ across tests for all tests is approximately equal to the true value of μ. This is not true of the observations which the null is rejected; it is only true of the tests with higher μ. This is because in order to reject the null, the estimated μ must be different from 0 at a 95% level of significance. For a small μ of 1 or 2, only an estimated μ larger (due to random chance) than μ will be far enough from 0 to be significant. So, when examining the tests where to null hypothesis was rejected, the estimated μ is larger than the true μ for the smaller effect sizes.
